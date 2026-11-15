@@ -11,8 +11,11 @@ import {
   Camera,
   AlertCircle,
   ShieldCheck,
+  Globe,
 } from 'lucide-react';
 import { usePWAInstall } from '../utils/usePWAInstall';
+
+export const GITHUB_PAGES_URL = 'https://yamjud23.github.io/vin/';
 
 export const DEV_MOBILE_URL =
   'https://ais-dev-7qeivg2zx3cogclkcxmoln-594560326915.europe-west3.run.app';
@@ -32,13 +35,17 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
   onTriggerCamera,
 }) => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
-  const [selectedLinkType, setSelectedLinkType] = useState<'dev' | 'shared'>('dev');
+  const [selectedLinkType, setSelectedLinkType] = useState<'github' | 'dev' | 'shared'>('github');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [copiedLink, setCopiedLink] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   const activeUrl =
-    selectedLinkType === 'dev' ? DEV_MOBILE_URL : SHARED_MOBILE_URL;
+    selectedLinkType === 'github'
+      ? GITHUB_PAGES_URL
+      : selectedLinkType === 'dev'
+      ? DEV_MOBILE_URL
+      : SHARED_MOBILE_URL;
 
   useEffect(() => {
     QRCode.toDataURL(activeUrl, {
@@ -101,10 +108,10 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
             </div>
             <div>
               <h2 id="mobile-modal-title" className="text-base font-bold text-slate-900">
-                Ouvrir l’Application sur votre Téléphone
+                Ouvrir votre Site sur votre Téléphone (GitHub & Direct)
               </h2>
               <p className="text-xs text-slate-500">
-                2 liens disponibles selon comment votre téléphone est connecté
+                Votre site GitHub Pages public + vos liens AI Studio
               </p>
             </div>
           </div>
@@ -118,31 +125,60 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
           </button>
         </div>
 
-        {/* Why the link might block + 2-Step Fix */}
-        <div className="bg-amber-50/90 border border-amber-200 rounded-xl p-3.5 space-y-2">
+        {/* Step-by-step GitHub Pages activation guide */}
+        <div className="bg-teal-50/80 border border-teal-200 rounded-xl p-3.5 space-y-1.5">
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
             <div className="text-xs text-slate-800 space-y-1">
               <p className="font-bold text-slate-900">
-                Pourquoi le lien ne s’ouvrait pas sur votre portable ?
+                Comment activer votre site gratuit sur GitHub (https://yamjud23.github.io/vin/) :
               </p>
-              <p>
-                Par sécurité, Google AI Studio bloque l’accès mobile tant que l’une de ces 2 conditions n’est pas remplie :
-              </p>
-              <ul className="list-disc pl-4 space-y-1 text-slate-700">
+              <ol className="list-decimal pl-4 space-y-1 text-slate-700">
                 <li>
-                  <strong>Option A (Immédiate — Lien 1 ci-dessous)</strong> : Utilisez le lien <code>ais-dev</code> sur votre téléphone en étant connecté à votre compte Google (<strong>YAMJUD23</strong>) dans Safari ou Chrome.
+                  Cliquez sur l’icône <strong>GitHub</strong> en haut à droite d’AI Studio pour envoyer ce code vers <code>YAMJUD23/vin</code>.
                 </li>
                 <li>
-                  <strong>Option B (Lien public sans connexion — Lien 2 ci-dessous)</strong> : Cliquez d’abord sur le bouton <strong>« Partager / Share »</strong> (ou <strong>« Déployer / Deploy »</strong>) tout en haut à droite de la page Google AI Studio sur votre ordinateur pour déverrouiller le lien public <code>ais-pre</code>.
+                  Sur GitHub, ouvrez{' '}
+                  <a
+                    href="https://github.com/YAMJUD23/vin/settings/pages"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-teal-800 underline"
+                  >
+                    github.com/YAMJUD23/vin/settings/pages
+                  </a>
+                  , et dans <strong>Build and deployment → Source</strong>, choisissez <strong>GitHub Actions</strong>.
                 </li>
-              </ul>
+                <li>
+                  Votre site public sera en ligne 1 minute plus tard sur <strong>https://yamjud23.github.io/vin/</strong> (accessible sur tous vos téléphones sans aucune connexion !).
+                </li>
+              </ol>
             </div>
           </div>
         </div>
 
-        {/* Selector between Link 1 (Dev Direct) and Link 2 (Shared Pre) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {/* Selector between GitHub Pages, Dev Direct, and Shared Pre */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => setSelectedLinkType('github')}
+            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+              selectedLinkType === 'github'
+                ? 'bg-teal-50/80 border-teal-700 ring-1 ring-teal-700'
+                : 'bg-white border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-900">
+                Site GitHub Pages
+              </span>
+              <Globe className="w-4 h-4 text-teal-700" />
+            </div>
+            <p className="text-[11px] text-slate-600 mt-0.5">
+              yamjud23.github.io/vin (Public & gratuit)
+            </p>
+          </button>
+
           <button
             type="button"
             onClick={() => setSelectedLinkType('dev')}
@@ -154,12 +190,12 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-900">
-                Lien 1 : Direct (ais-dev)
+                Lien Direct (ais-dev)
               </span>
               <ShieldCheck className="w-4 h-4 text-teal-700" />
             </div>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              Actif immédiatement avec votre compte (YAMJUD23)
+              Session active (compte YAMJUD23)
             </p>
           </button>
 
@@ -174,12 +210,12 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-900">
-                Lien 2 : Partagé (ais-pre)
+                Lien Partagé (ais-pre)
               </span>
               <Share2 className="w-4 h-4 text-slate-600" />
             </div>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              Actif après avoir cliqué sur « Share / Partager » en haut à droite d’AI Studio
+              Lien Cloud Run partagé
             </p>
           </button>
         </div>
@@ -200,19 +236,29 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
               </div>
             )}
             <span className="text-[11px] font-medium text-slate-500 mt-1.5 text-center">
-              QR Code ({selectedLinkType === 'dev' ? 'Lien 1 Direct' : 'Lien 2 Partagé'})
+              QR Code (
+              {selectedLinkType === 'github'
+                ? 'Site GitHub'
+                : selectedLinkType === 'dev'
+                ? 'Lien Direct'
+                : 'Lien Partagé'}
+              )
             </span>
           </div>
 
           <div className="sm:col-span-7 space-y-3">
             <div>
               <span className="block text-xs font-semibold text-slate-800">
-                {selectedLinkType === 'dev'
-                  ? 'Lien 1 — Session directe (recommandé) :'
-                  : 'Lien 2 — Lien partagé public :'}
+                {selectedLinkType === 'github'
+                  ? 'Lien de votre site GitHub Pages (public) :'
+                  : selectedLinkType === 'dev'
+                  ? 'Lien Direct — Session active :'
+                  : 'Lien Partagé Cloud Run :'}
               </span>
               <p className="text-xs text-slate-600 mt-0.5">
-                {selectedLinkType === 'dev'
+                {selectedLinkType === 'github'
+                  ? 'Votre lien de site hébergé gratuitement sur votre GitHub YAMJUD23 :'
+                  : selectedLinkType === 'dev'
                   ? 'Ouvrez ce lien dans Chrome ou Safari (session YAMJUD23) :'
                   : 'Assurez-vous d’avoir activé le bouton « Share » en haut à droite d’AI Studio :'}
               </p>

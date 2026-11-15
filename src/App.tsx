@@ -30,6 +30,7 @@ import { BatchQueueGrid } from './components/BatchQueueGrid';
 import { StudioInspector } from './components/StudioInspector';
 import {
   MobileAccessModal,
+  GITHUB_PAGES_URL,
   DEV_MOBILE_URL,
   SHARED_MOBILE_URL,
 } from './components/MobileAccessModal';
@@ -59,7 +60,7 @@ export default function App() {
   const [isAnalyzingId, setIsAnalyzingId] = useState<string | null>(null);
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
-  const [copiedMobileUrl, setCopiedMobileUrl] = useState<'dev' | 'shared' | null>(null);
+  const [copiedMobileUrl, setCopiedMobileUrl] = useState<'github' | 'dev' | 'shared' | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -106,8 +107,13 @@ export default function App() {
     }, 3800);
   };
 
-  const handleCopyMobileUrl = async (type: 'dev' | 'shared' = 'dev') => {
-    const urlToCopy = type === 'dev' ? DEV_MOBILE_URL : SHARED_MOBILE_URL;
+  const handleCopyMobileUrl = async (type: 'github' | 'dev' | 'shared' = 'github') => {
+    const urlToCopy =
+      type === 'github'
+        ? GITHUB_PAGES_URL
+        : type === 'dev'
+        ? DEV_MOBILE_URL
+        : SHARED_MOBILE_URL;
     try {
       await navigator.clipboard.writeText(urlToCopy);
     } catch {
@@ -120,9 +126,11 @@ export default function App() {
     }
     setCopiedMobileUrl(type);
     showToast(
-      type === 'dev'
+      type === 'github'
+        ? 'Lien du site GitHub (https://yamjud23.github.io/vin/) copié !'
+        : type === 'dev'
         ? 'Lien Direct (ais-dev) copié ! Ouvrez-le sur votre téléphone connecté à votre compte Google (YAMJUD23).'
-        : 'Lien Partagé (ais-pre) copié ! Pensez à activer le bouton « Share » en haut à droite d’AI Studio.'
+        : 'Lien Partagé (ais-pre) copié !'
     );
     setTimeout(() => setCopiedMobileUrl(null), 2400);
   };
@@ -777,18 +785,50 @@ export default function App() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
-              {/* Link 1: Dev URL */}
-              <div className="bg-white border border-teal-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
+              {/* Link GitHub Pages */}
+              <div className="bg-white border border-teal-300 rounded-lg p-2.5 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <span className="block text-[11px] font-bold text-teal-900">
-                    Lien 1 — Direct (session active YAMJUD23) :
+                    Site GitHub Public (YAMJUD23) :
+                  </span>
+                  <a
+                    href={GITHUB_PAGES_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-xs font-mono text-teal-700 hover:underline truncate mt-0.5"
+                  >
+                    {GITHUB_PAGES_URL}
+                  </a>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyMobileUrl('github')}
+                  className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  {copiedMobileUrl === 'github' ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" /> Copié !
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" /> Copier Site GitHub
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Link 1: Dev URL */}
+              <div className="bg-white border border-slate-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <span className="block text-[11px] font-bold text-slate-800">
+                    Lien Direct (session active YAMJUD23) :
                   </span>
                   <a
                     href={DEV_MOBILE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block text-xs font-mono text-teal-700 hover:underline truncate mt-0.5"
+                    className="block text-xs font-mono text-slate-700 hover:underline truncate mt-0.5"
                   >
                     {DEV_MOBILE_URL}
                   </a>
@@ -796,11 +836,11 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => handleCopyMobileUrl('dev')}
-                  className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   {copiedMobileUrl === 'dev' ? (
                     <>
-                      <Check className="w-3.5 h-3.5" /> Copié !
+                      <Check className="w-3.5 h-3.5 text-teal-700" /> Copié !
                     </>
                   ) : (
                     <>
@@ -814,7 +854,7 @@ export default function App() {
               <div className="bg-white border border-slate-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <span className="block text-[11px] font-bold text-slate-800">
-                    Lien 2 — Public (après clic sur « Share » en haut à droite d’AI Studio) :
+                    Lien Cloud Run Partagé :
                   </span>
                   <a
                     href={SHARED_MOBILE_URL}

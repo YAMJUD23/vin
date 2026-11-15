@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
+    base: './',
     plugins: [
       react(),
       tailwindcss(),
@@ -13,31 +14,31 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['icon.svg', 'apple-touch-icon.png'],
         manifest: {
-          id: '/',
+          id: './',
           name: 'Atelier Vinted Kids — Studio Batch 500 Habits',
           short_name: 'VintedKids',
           description:
-            'Prenez un habit enfant en photo, indiquez l’âge et la marque : détourage fond neutre, âge sur photo, description et prix conseillé Vinted.',
+            'Prenez un lot de 5 à 10 habits enfant en photo : fond neutre, âge sur photo, description détaillée et prix conseillé Vinted.',
           theme_color: '#0F766E',
           background_color: '#F8F9FA',
           display: 'standalone',
-          start_url: '/',
-          scope: '/',
+          start_url: './',
+          scope: './',
           icons: [
             {
-              src: '/pwa-192x192.png',
+              src: 'pwa-192x192.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: '/pwa-512x512.png',
+              src: 'pwa-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: '/pwa-maskable-512x512.png',
+              src: 'pwa-maskable-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
