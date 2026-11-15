@@ -17,6 +17,7 @@ import {
   BACKGROUND_PRESETS,
   CONDITION_OPTIONS,
   GARMENT_CATEGORIES,
+  STUDIO_PRESENTATION_MODES,
   formatListingForClipboard,
   getAgeOption,
   type BackgroundPresetId,
@@ -25,6 +26,7 @@ import {
   type BatchGarmentItem,
   type ConditionKey,
   type GarmentCategory,
+  type StudioPresentationMode,
 } from '../utils/vintedEngine';
 
 interface StudioInspectorProps {
@@ -49,6 +51,7 @@ interface StudioInspectorProps {
         | 'bundleCount'
         | 'customNotes'
         | 'detourageStrength'
+        | 'presentationMode'
       >
     > & {
       customTitle?: string;
@@ -58,8 +61,10 @@ interface StudioInspectorProps {
     }
   ) => void;
   onRunGeminiAnalysis: (item: BatchGarmentItem) => void;
+  onBeautifyPhotoAI?: (item: BatchGarmentItem) => void;
   onMarkCopied: (id: string) => void;
   isAnalyzingId: string | null;
+  isBeautifyingId?: string | null;
 }
 
 export const StudioInspector: React.FC<StudioInspectorProps> = ({
@@ -74,8 +79,10 @@ export const StudioInspector: React.FC<StudioInspectorProps> = ({
   setShowBrandOnPhoto,
   onUpdateItem,
   onRunGeminiAnalysis,
+  onBeautifyPhotoAI,
   onMarkCopied,
   isAnalyzingId,
+  isBeautifyingId,
 }) => {
   const [compareOriginal, setCompareOriginal] = useState(false);
   const [copiedField, setCopiedField] = useState<'all' | 'title' | 'desc' | null>(null);
@@ -170,6 +177,24 @@ export const StudioInspector: React.FC<StudioInspectorProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {onBeautifyPhotoAI && (
+            <button
+              type="button"
+              onClick={() => onBeautifyPhotoAI(item)}
+              disabled={isBeautifyingId === item.id}
+              className="min-h-[40px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer disabled:opacity-50"
+            >
+              {isBeautifyingId === item.id ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
+              {isBeautifyingId === item.id
+                ? 'Mise en valeur Studio IA...'
+                : 'Sublimer & Défroisser (Studio IA)'}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onRunGeminiAnalysis(item)}
@@ -240,11 +265,11 @@ export const StudioInspector: React.FC<StudioInspectorProps> = ({
           </div>
 
           {/* Studio Photo Controls */}
-          <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3.5 space-y-3">
+          <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3.5 space-y-3.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
                 <Sliders className="w-3.5 h-3.5 text-teal-700" />
-                Réglages Photo Globale & Badge Lot/Âge
+                Mise en Valeur Vinted Pro & Présentation des Habits
               </span>
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
                 <input
@@ -257,9 +282,45 @@ export const StudioInspector: React.FC<StudioInspectorProps> = ({
               </label>
             </div>
 
+            {/* 4 Vinted Top-Seller Presentation Modes */}
+            <div>
+              <span className="block text-[11px] font-semibold text-slate-700 mb-1.5">
+                1. Style de mise en valeur (inspiré des meilleurs vendeurs Vinted)
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {STUDIO_PRESENTATION_MODES.map((m) => {
+                  const activeMode = (item.presentationMode ?? 'studio-pro') === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => onUpdateItem(item.id, { presentationMode: m.id })}
+                      className={`text-left p-2.5 rounded-lg border transition-colors cursor-pointer ${
+                        activeMode
+                          ? 'bg-teal-50/90 border-2 border-teal-700 text-slate-900 shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-800 hover:border-teal-600'
+                      }`}
+                    >
+                      <div className="text-xs font-bold flex items-center justify-between gap-1 text-slate-900">
+                        <span>{m.name}</span>
+                        {activeMode && (
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-teal-700 text-white">
+                            Actif
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] mt-0.5 leading-snug text-slate-600">
+                        {m.shortDesc}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div>
               <span className="block text-[11px] font-medium text-slate-500 mb-1">
-                Fond neutre studio
+                2. Fond neutre studio
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {BACKGROUND_PRESETS.map((preset) => {
@@ -329,10 +390,10 @@ export const StudioInspector: React.FC<StudioInspectorProps> = ({
 
             <div>
               <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1">
-                <label htmlFor="detourage-slider">
-                  Harmonisation du fond neutre autour du lot
+                <label htmlFor="detourage-slider" className="font-medium text-slate-700">
+                  Intensité Éclairage Studio & Unification du Fond
                 </label>
-                <span className="font-mono tabular-nums font-medium">
+                <span className="font-mono tabular-nums font-semibold text-teal-800">
                   {item.detourageStrength}%
                 </span>
               </div>
@@ -348,6 +409,9 @@ export const StudioInspector: React.FC<StudioInspectorProps> = ({
                 }
                 className="w-full accent-teal-700 cursor-pointer"
               />
+              <p className="text-[11px] text-slate-500 mt-1">
+                Unifie les ombres de coins en douceur, ravive les couleurs et garde les vêtements blancs 100% nets.
+              </p>
             </div>
           </div>
         </div>

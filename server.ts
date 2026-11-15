@@ -241,6 +241,93 @@ Instructions importantes :
     }
   });
 
+  app.post('/api/beautify-photo', async (req, res) => {
+    try {
+      const {
+        imageBase64,
+        mimeType = 'image/jpeg',
+        bundleCount = 6,
+      } = req.body as {
+        imageBase64?: string;
+        mimeType?: string;
+        bundleCount?: number;
+      };
+
+      const ai = getGenAIClient();
+      if (!ai || !imageBase64) {
+        return res.status(400).json({
+          ok: false,
+          error: 'Image ou clé IA manquante',
+        });
+      }
+
+      const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
+
+      // Use gemini-4-hydrogen Vision to detect exact garment bounding boxes & labels
+      // so the studio engine can isolate, center, and number every piece cleanly (#1 to #N)
+      const visionPrompt = `Tu es un directeur artistique photo spécialisé dans la mise en valeur de lots de vêtements enfant sur Vinted.
+Observe cette photo contenant environ ${bundleCount} vêtements enfant.
+Repère chaque vêtement individuellement (de gauche à droite et de haut en bas) et renvoie pour chacun :
+- Ses coordonnées normalisées entre 0 et 1 (ymin, xmin, ymax, xmax) englobant le vêtement.
+- Son nom court (max 20 caractères, ex: "Marinière coton", "Salopette camel", "Cardigan maille", "T-shirt blanc").
+Indique aussi si les vêtements semblent mal alignés ou froissés ("needsGridAlignment": true si une présentation en Grille Catalogue Alignée #1 à #N mettra mieux les habits en valeur).`;
+
+      const visionResponse = await ai.models.generateContent({
+        model: 'gemini-4-hydrogen',
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                data: cleanBase64,
+                mimeType,
+              },
+            },
+            { text: visionPrompt },
+          ],
+        },
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              needsGridAlignment: {
+                type: Type.BOOLEAN,
+              },
+              garmentBoxes: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    ymin: { type: Type.NUMBER },
+                    xmin: { type: Type.NUMBER },
+                    ymax: { type: Type.NUMBER },
+                    xmax: { type: Type.NUMBER },
+                    label: { type: Type.STRING },
+                  },
+                  required: ['ymin', 'xmin', 'ymax', 'xmax', 'label'],
+                },
+              },
+            },
+            required: ['needsGridAlignment', 'garmentBoxes'],
+          },
+        },
+      });
+
+      const parsed = JSON.parse((visionResponse.text ?? '{}').trim());
+      return res.json({
+        ok: true,
+        needsGridAlignment: Boolean(parsed.needsGridAlignment),
+        garmentBoxes: Array.isArray(parsed.garmentBoxes) ? parsed.garmentBoxes : [],
+        source: 'gemini-vision-studio',
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        error: error instanceof Error ? error.message : 'Erreur de mise en valeur IA',
+      });
+    }
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({

@@ -58,6 +58,7 @@ export default function App() {
 
   const [isProcessingBatch, setIsProcessingBatch] = useState<boolean>(false);
   const [isAnalyzingId, setIsAnalyzingId] = useState<string | null>(null);
+  const [isBeautifyingId, setIsBeautifyingId] = useState<string | null>(null);
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState<boolean>(false);
   const [copiedMobileUrl, setCopiedMobileUrl] = useState<'github' | 'dev' | 'shared' | null>(null);
@@ -77,8 +78,11 @@ export default function App() {
               age: item.age,
               brand: item.brand,
               bundleCount: item.listing.bundleCount,
+              pricePerPiece: item.listing.pricing.pricePerPiece,
+              bundleItemsList: item.listing.bundleItemsList,
               condition: item.condition,
               backgroundPreset,
+              presentationMode: item.presentationMode ?? 'studio-pro',
               badgePosition,
               badgeStyle,
               showBrandOnPhoto,
@@ -386,6 +390,7 @@ export default function App() {
         | 'bundleCount'
         | 'customNotes'
         | 'detourageStrength'
+        | 'presentationMode'
       >
     > & {
       customTitle?: string;
@@ -404,6 +409,8 @@ export default function App() {
     const nextCount = updates.bundleCount ?? target.listing.bundleCount;
     const nextNotes = updates.customNotes ?? target.customNotes;
     const nextDetourage = updates.detourageStrength ?? target.detourageStrength;
+    const nextPresentationMode =
+      updates.presentationMode ?? target.presentationMode ?? 'studio-pro';
     const nextItemsList =
       updates.bundleItemsList ??
       (updates.bundleCount !== undefined &&
@@ -416,7 +423,10 @@ export default function App() {
       updates.brand !== undefined ||
       updates.condition !== undefined ||
       updates.bundleCount !== undefined ||
-      updates.detourageStrength !== undefined;
+      updates.detourageStrength !== undefined ||
+      updates.presentationMode !== undefined ||
+      updates.customPrice !== undefined ||
+      updates.bundleItemsList !== undefined;
 
     const needsListingRebuild =
       updates.age !== undefined ||
@@ -471,8 +481,11 @@ export default function App() {
           age: nextAge,
           brand: nextBrand,
           bundleCount: nextListing.bundleCount,
+          pricePerPiece: nextListing.pricing.pricePerPiece,
+          bundleItemsList: nextListing.bundleItemsList,
           condition: nextCondition,
           backgroundPreset,
+          presentationMode: nextPresentationMode,
           badgePosition,
           badgeStyle,
           showBrandOnPhoto,
@@ -495,6 +508,7 @@ export default function App() {
               bundleCount: nextListing.bundleCount,
               customNotes: nextNotes,
               detourageStrength: nextDetourage,
+              presentationMode: nextPresentationMode,
               cleanedImageUrl,
               listing: nextListing,
             }
@@ -513,8 +527,11 @@ export default function App() {
           age: item.age,
           brand: item.brand,
           bundleCount: item.listing.bundleCount,
+          pricePerPiece: item.listing.pricing.pricePerPiece,
+          bundleItemsList: item.listing.bundleItemsList,
           condition: item.condition,
           backgroundPreset,
+          presentationMode: item.presentationMode ?? 'studio-pro',
           badgePosition,
           badgeStyle,
           showBrandOnPhoto,
@@ -546,6 +563,80 @@ export default function App() {
     }
   };
 
+  const handleBeautifyPhotoAI = async (item: BatchGarmentItem) => {
+    setIsBeautifyingId(item.id);
+    showToast(
+      `Mise en valeur Vinted Pro en cours : alignement des ${item.listing.bundleCount} habits & purification studio...`
+    );
+    try {
+      let aiBoxes:
+        | { ymin: number; xmin: number; ymax: number; xmax: number; label?: string }[]
+        | undefined;
+      try {
+        const res = await fetch('/api/beautify-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: item.originalImageUrl,
+            mimeType: 'image/jpeg',
+            bundleCount: item.listing.bundleCount,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ok && Array.isArray(data.garmentBoxes) && data.garmentBoxes.length >= 2) {
+            aiBoxes = data.garmentBoxes;
+          }
+        }
+      } catch {
+        // Fallback to smart deterministic garment cell alignment
+      }
+
+      // Switch between Grille Catalogue Alignée (#1 à #N) and Studio Détouré Pro so the user can see their clothes neatly isolated & showcased
+      const nextMode =
+        (item.presentationMode ?? 'studio-pro') === 'catalogue-grid'
+          ? 'lookbook-vinted'
+          : 'catalogue-grid';
+
+      const cleanedImageUrl = await renderCleanStudioPhoto({
+        imageSrc: item.originalImageUrl,
+        age: item.age,
+        brand: item.brand,
+        bundleCount: item.listing.bundleCount,
+        pricePerPiece: item.listing.pricing.pricePerPiece,
+        bundleItemsList: item.listing.bundleItemsList,
+        condition: item.condition,
+        backgroundPreset,
+        presentationMode: nextMode,
+        badgePosition,
+        badgeStyle,
+        showBrandOnPhoto,
+        detourageStrength: Math.max(70, item.detourageStrength),
+        garmentBoxes: aiBoxes,
+      });
+
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === item.id
+            ? {
+                ...it,
+                cleanedImageUrl,
+                presentationMode: nextMode,
+                detourageStrength: Math.max(70, item.detourageStrength),
+              }
+            : it
+        )
+      );
+      showToast(
+        nextMode === 'catalogue-grid'
+          ? `Habits mis en valeur en Grille Catalogue Alignée (#1 à #${item.listing.bundleCount}) avec prix/pièce !`
+          : `Habits mis en valeur en Affiche Lookbook Vinted Pro (${item.listing.pricing.pricePerPiece.toFixed(2).replace('.', ',')} €/habit) !`
+      );
+    } finally {
+      setIsBeautifyingId(null);
+    }
+  };
+
   const handleAnalyzeAllBatch = async () => {
     setIsProcessingBatch(true);
     showToast(`Mise à jour des photos et descriptions sur ${items.length} lots...`);
@@ -556,8 +647,11 @@ export default function App() {
           age: item.age,
           brand: item.brand,
           bundleCount: item.listing.bundleCount,
+          pricePerPiece: item.listing.pricing.pricePerPiece,
+          bundleItemsList: item.listing.bundleItemsList,
           condition: item.condition,
           backgroundPreset,
+          presentationMode: item.presentationMode ?? 'studio-pro',
           badgePosition,
           badgeStyle,
           showBrandOnPhoto,
@@ -986,8 +1080,10 @@ export default function App() {
               setShowBrandOnPhoto={setShowBrandOnPhoto}
               onUpdateItem={handleUpdateItem}
               onRunGeminiAnalysis={handleRunGeminiAnalysis}
+              onBeautifyPhotoAI={handleBeautifyPhotoAI}
               onMarkCopied={handleMarkCopied}
               isAnalyzingId={isAnalyzingId}
+              isBeautifyingId={isBeautifyingId}
             />
           </div>
         )}

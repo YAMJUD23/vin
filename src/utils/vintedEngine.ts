@@ -17,6 +17,12 @@ export type GarmentCategory =
 
 export type BackgroundPresetId = 'studio-white' | 'natural-linen' | 'pearl-gray' | 'warm-ivory';
 
+export type StudioPresentationMode =
+  | 'studio-pro'
+  | 'catalogue-grid'
+  | 'lookbook-vinted'
+  | 'daylight-natural';
+
 export type BadgePosition = 'top-right' | 'bottom-right' | 'top-left' | 'bottom-bar';
 
 export type BadgeStyle = 'dark-boutique' | 'cream-label' | 'teal-vinted';
@@ -74,6 +80,7 @@ export interface BatchGarmentItem {
   listing: GeneratedVintedListing;
   createdAt: number;
   detourageStrength: number; // 0 to 100
+  presentationMode?: StudioPresentationMode;
 }
 
 export const AGE_OPTIONS: AgeOption[] = [
@@ -213,6 +220,33 @@ export const BACKGROUND_PRESETS: {
     innerHex: '#FFFDF9',
     borderHex: '#E6DEC8',
     description: 'Atmosphère douce style boutique enfantine',
+  },
+];
+
+export const STUDIO_PRESENTATION_MODES: {
+  id: StudioPresentationMode;
+  name: string;
+  shortDesc: string;
+}[] = [
+  {
+    id: 'studio-pro',
+    name: 'Planche Studio & Prix/Pièce',
+    shortDesc: 'Bandeau haut « LOT + ÂGE + Prix/habit » hors photo + lumière studio & netteté textile',
+  },
+  {
+    id: 'catalogue-grid',
+    name: 'Grille Alignée (#1 à #N)',
+    shortDesc: 'Isole, aligne et numérote chaque vêtement dans sa propre carte propre avec son nom',
+  },
+  {
+    id: 'lookbook-vinted',
+    name: 'Affiche + Liste sur Photo',
+    shortDesc: 'Photo du lot + encart récapitulatif numéroté (#1 à #N) directement inscrit en bas',
+  },
+  {
+    id: 'daylight-natural',
+    name: 'Plein Cadre Lumière du Jour',
+    shortDesc: 'Photo 1:1 plein cadre corrigée (anti-jaune + éclat des tissus) avec badge discret',
   },
 ];
 
