@@ -1,0 +1,8 @@
+{
+  "name": "Atelier Vinted Kids",
+  "description": "Studio d'automatisation en lot pour préparer, détourer sur fond neutre, ajouter l'âge sur chaque photo et générer automatiquement les descriptions et prix conseillés Vinted pour 500 vêtements enfant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

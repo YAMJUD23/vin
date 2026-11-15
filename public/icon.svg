@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#0F766E" />
+  <rect x="56" y="56" width="400" height="400" rx="80" fill="#115E59" stroke="#2DD4BF" stroke-width="6" stroke-opacity="0.35" />
+  <path d="M180 156L216 184H296L332 156L388 204L352 260L316 238V360H196V238L160 260L124 204L180 156Z" fill="#FFFFFF" />
+  <rect x="272" y="108" width="148" height="64" rx="18" fill="#0F172A" stroke="#FFFFFF" stroke-width="4" />
+  <text x="346" y="149" font-family="sans-serif" font-size="30" font-weight="800" fill="#2DD4BF" text-anchor="middle">3 ANS</text>
+</svg>
