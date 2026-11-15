@@ -131,7 +131,7 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
               </p>
               <ul className="list-disc pl-4 space-y-1 text-slate-700">
                 <li>
-                  <strong>Option A (Immédiate — Lien 1 ci-dessous)</strong> : Utilisez le lien <code>ais-dev</code> sur votre téléphone en étant connecté au compte Google <strong>yassine.belahmar23@gmail.com</strong> dans Safari ou Chrome.
+                  <strong>Option A (Immédiate — Lien 1 ci-dessous)</strong> : Utilisez le lien <code>ais-dev</code> sur votre téléphone en étant connecté à votre compte Google (<strong>YAMJUD23</strong>) dans Safari ou Chrome.
                 </li>
                 <li>
                   <strong>Option B (Lien public sans connexion — Lien 2 ci-dessous)</strong> : Cliquez d’abord sur le bouton <strong>« Partager / Share »</strong> (ou <strong>« Déployer / Deploy »</strong>) tout en haut à droite de la page Google AI Studio sur votre ordinateur pour déverrouiller le lien public <code>ais-pre</code>.
@@ -159,7 +159,7 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
               <ShieldCheck className="w-4 h-4 text-teal-700" />
             </div>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              Actif immédiatement avec votre compte Google (yassine.belahmar23@gmail.com)
+              Actif immédiatement avec votre compte (YAMJUD23)
             </p>
           </button>
 
@@ -213,7 +213,7 @@ export const MobileAccessModal: React.FC<MobileAccessModalProps> = ({
               </span>
               <p className="text-xs text-slate-600 mt-0.5">
                 {selectedLinkType === 'dev'
-                  ? 'Ouvrez ce lien dans Chrome ou Safari (connecté à yassine.belahmar23@gmail.com) :'
+                  ? 'Ouvrez ce lien dans Chrome ou Safari (session YAMJUD23) :'
                   : 'Assurez-vous d’avoir activé le bouton « Share » en haut à droite d’AI Studio :'}
               </p>
             </div>

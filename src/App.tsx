@@ -121,7 +121,7 @@ export default function App() {
     setCopiedMobileUrl(type);
     showToast(
       type === 'dev'
-        ? 'Lien Direct (ais-dev) copié ! Ouvrez-le sur votre téléphone connecté à yassine.belahmar23@gmail.com.'
+        ? 'Lien Direct (ais-dev) copié ! Ouvrez-le sur votre téléphone connecté à votre compte Google (YAMJUD23).'
         : 'Lien Partagé (ais-pre) copié ! Pensez à activer le bouton « Share » en haut à droite d’AI Studio.'
     );
     setTimeout(() => setCopiedMobileUrl(null), 2400);
@@ -761,8 +761,8 @@ export default function App() {
                     Accès Mobile — Pourquoi le lien peut bloquer et quel lien utiliser sur votre téléphone :
                   </span>
                   <p className="text-xs text-slate-600">
-                    • <strong>Lien 1 (Direct Session Active)</strong> : fonctionne tout de suite si Safari/Chrome sur votre portable est connecté au compte Google <strong>yassine.belahmar23@gmail.com</strong>.
-                    <br />• <strong>Lien 2 (Public Partagé)</strong> : ne fonctionne <em>que</em> si vous cliquez d’abord sur le bouton <strong>« Share / Partager »</strong> (ou <strong>« Deploy »</strong>) tout en haut à droite de Google AI Studio.
+                    • <strong>Lien 1 (Direct Session Active)</strong> : fonctionne tout de suite si Safari/Chrome sur votre portable est connecté à votre compte Google (<strong>YAMJUD23</strong>).
+                    <br />• <strong>Lien 2 (Public Partagé)</strong> : fonctionne après avoir cliqué sur le bouton <strong>« Share / Partager »</strong> (ou <strong>« Deploy »</strong>) tout en haut à droite de Google AI Studio.
                   </p>
                 </div>
               </div>
@@ -782,7 +782,7 @@ export default function App() {
               <div className="bg-white border border-teal-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <span className="block text-[11px] font-bold text-teal-900">
-                    Lien 1 — Direct (avec compte Google yassine.belahmar23@gmail.com) :
+                    Lien 1 — Direct (session active YAMJUD23) :
                   </span>
                   <a
                     href={DEV_MOBILE_URL}
